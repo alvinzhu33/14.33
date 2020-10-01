@@ -1,189 +1,56 @@
 ---
-title: "14.33 Analysis"
+title: "14.33 Short Paper Analysis"
 output: html_notebook
 ---
 
 
 ```{r}
-library(ggfortify)
-library(car)
-library(DAAG)
-library(DMwR)
-library(anytime)
-library(forecast)
+library(usmap)
+library(ggplot2)
 ```
 
 ```{r}
 votes <- read.csv("votesCleaned.csv")
 original <- votes
 
-votes$freezing <- as.integer(as.logical(votes$freezing))
-votes$raining <- as.integer(as.logical(votes$raining))
-
-repVotes <- subset(votes, isDem=="False")
-demVotes <- subset(votes, isDem=="True")
+votes$booRain <- as.integer(as.logical(votes$booRain))
+votes$booPastRain <- as.integer(as.logical(votes$booPastRain))
+votes$didRain <- votes$booRain * votes$booPastRain
+votes$booYear <- as.integer(as.logical(votes$booYear))
 
 str(votes)
 ```
 
 
 ```{r}
-modelRep <- lm(shareRep ~ tempDiff + rainDiff, data=repVotes)
-summary(modelRep)
+# Map the average temperatures for every county on 2016 Election Day
 
-modelDem <- lm(shareDem ~ tempDiff + rainDiff, data=demVotes)
-summary(modelDem)
+df2016 <- subset(votes, booYear==1)
 
-model <- lm(shareDem ~ tempDiff + rainDiff, data=votes)
-summary(model)
+new_df <- subset(df2016, keep = c("FIPS","avgTemp"))
+names(new_df)[2] <- 'fips'
+
+plot_usmap(regions=c('county'), data=new_df, values='avgTemp')+scale_fill_continuous(low = "blue", high = "red", name = "Avg Temperature (C)", label = scales::comma)+labs(title="Avg Temperature by US County")
+
 ```
 
 
 ```{r}
-modelRep <- lm(shareDem ~ tempDiff + currRain, data=subset(votes, pastRain==0))
-summary(modelRep)
+# Map the precipitation in mm for every county on 2016 Election Day
 
-modelRep <- lm(shareDem ~ tempDiff + currRain, data=subset(votes, pastRain==1))
-summary(modelRep)
-
-modelRep <- lm(shareDem ~ tempDiff + currRain, data=subset(votes, pastRain==2))
-summary(modelRep)
-
-modelRep <- lm(shareDem ~ tempDiff + currRain, data=subset(votes, pastRain==3))
-summary(modelRep)
-
-```
-
-```{r}
-modelRep <- lm(shareRep ~ tempDiff + climateRainDiff, data=repVotes)
-summary(modelRep)
-
-modelDem <- lm(shareDem ~ tempDiff + climateRainDiff, data=demVotes)
-summary(modelDem)
-
-model <- lm(shareDem ~ tempDiff + climateRainDiff, data=votes)
-summary(model)
-```
-
-```{r}
-modelRep <- lm(shareRep ~ tempDiff + raining + freezing, data=demVotes)
-summary(modelRep)
-
-modelDem <- lm(shareDem ~ tempDiff + raining + freezing, data=repVotes)
-summary(modelDem)
-
-modelAll <- lm(shareDem ~ tempDiff + raining + freezing, data=votes)
-summary(modelAll)
+new_df2 <- subset(df2016, keep = c("FIPS","prcpMm"))
+names(new_df2)[2] <- 'fips'
+plot_usmap(regions=c('county'), data=new_df2, values='prcpMm')+scale_fill_continuous(type = "viridis", direction=-1, name = "Avg Rainfall (mm)")+labs(title="Rainfall by US County")
 ```
 
 
 ```{r}
-# 1.4
+# Calculate DiD model
 
-# Training
-trainAct <- ufcTrain$Buyrate
-newTrain <- data.frame(Tweets = c(ufcTrain$Tweets))
-trainPred <- predict(model, newTrain)
-regr.eval(trainAct,trainPred)
-
-# Testing
-testAct <- ufcTest$Buyrate
-newTest <- data.frame(Tweets = c(ufcTest$Tweets))
-testPred <- predict(model, newTest)
-regr.eval(testAct, testPred)
-```
-
-```{r}
-# 1.5
-
-CVlm(data=ufc, form.lm=model, m=4, dots=FALSE, seed=80, plotit=c("Observed","Residual"), main="Buyrates by Tweets for 4-fold CV")
-```
-
-
-```{r}
-# 2.1
-
-moist <- read.csv("MoisturizerSalesGoogleTrend.csv")
-original <- moist
-moist$Date <- anytime(moist$Date)
-
-plot(moist$Date, moist$MoisturizerSales, main="Sales vs Time (Weeks)", xlab="Date", ylab="Moisturizer Sales")
-plot(moist$Date, moist$GoogleTrendVolumeEczema, main="Trend vs Time (Weeks)", xlab="Date", ylab="Google Trend")
-```
-
-```{r}
-# 2.2
-
-train <- subset(moist, moist$Date <= anytime("2013-12-29"))
-test <- subset(moist, moist$Date > anytime("2013-12-29"))
-
-model <- lm(MoisturizerSales ~ GoogleTrendVolumeEczema, data=train)
+model <- lm(shareDem ~ tempDiff + rainDiff + booRain + booPastRain + didRain, data=votes)
 summary(model)
 
-testAct <- test$MoisturizerSales
-newTest <- data.frame(GoogleTrendVolumeEczema = c(test$GoogleTrendVolumeEczema))
-testPred <- predict(model, newTest)
-regr.eval(testAct, testPred)
-```
-
-```{r}
-# 2.3
-
-plot(train$Date, resid(model), main="Residual by Date", xlab="Date", ylab="Residuals")
-```
-
-```{r}
-# 2.4
-
-acf(train$MoisturizerSales, main="ACF by Weeks of Lag")
-```
-
-```{r}
-# 2.5
-
-trainMS <- ts(train[c("Date", "MoisturizerSales", "GoogleTrendVolumeEczema")], class="ts", frequency=52)
-
-components <- decompose(trainMS[,2])
-plot(components)
-```
-
-```{r}
-# 2.6
-
-random = na.omit(components$random)
-arima = auto.arima(random)
-summary(arima)
-```
-
-```{r}
-# 2.7
-
-plot(train$Date, train$MoisturizerSales, main="Sales Data vs Linear Regression Prediction", xlab="Sales", ylab="Buyrate")
-lines(train$Date, fitted(model), col="red")
-
-plot(train[,1], train[,2], main="Sales Data vs Time Series Prediction", xlab="Date", ylab="Sales")
-new_line = components$seasonal + components$trend
-lines(train[,1], new_line, col="green")
-```
-
-
-```{r}
-# Bonus 1
-
-modelBonus = lm(resid(arima) ~ train[,3][53:177])
-summary(modelBonus)
-```
-
-```{r}
-# Bonus 2
-
-new_fit = new_line + arima$fitted + modelBonus$fitted.values
-for (i in (1:26))
-  new_fit = append(NA, new_fit)
-for (i in (1:26))
-  new_fit = append(new_fit, NA)
-
-plot(train$Date, train$MoisturizerSales, main="Buyrate Data vs ARIMA+Regression", xlab="Date", ylab="Buyrate")
-lines(train$Date, new_fit, col="Blue")
+model <- lm(shareRep ~ tempDiff + rainDiff + booRain + booPastRain + didRain, data=votes)
+summary(model)
 ```
 

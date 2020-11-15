@@ -1,0 +1,26 @@
+---
+title: "14.33 Final Paper Analysis"
+output: html_notebook
+---
+
+
+```{r}
+library(usmap)
+library(ggplot2)
+```
+
+```{r}
+covid <- read.csv("analysis.csv")
+original <- covid
+covid
+```
+
+
+```{r}
+# Calculate DiD model
+
+model <- lm(pol ~ covidCases + employment + outside + creditcardSpend + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7, data=covid)
+# pol ~ covidCases + employment + outside + creditcardSpend + day.14 + day.13 + day.12 + day.11 + day.10 + day.9 + day.8 + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + day8 + day9 + day10 + day11 + day12 + day13 + day14
+summary(model)
+```
+

@@ -6,40 +6,67 @@ output: html_notebook
 ```{r}
 covid <- read.csv("analysis.csv")
 original <- covid
-
-#model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7, data=covid)
-
-#model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + day.13 + day.12 + day.11 + day.10 + day.9 + day.8 + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + day8 + day9 + day10 + day11 + day12 + day13 + day14, data=covid)
-
-model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + day.30 + day.29 + day.28 + day.27 + day.26 + day.25 + day.24 + day.23 + day.22 + day.21 + day.20 + day.19 + day.18 + day.17 + day.16 + day.15 + day.14 + day.13 + day.12 + day.11 + day.10 + day.9 + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + day8 + day9 + day10 + day11 + day12 + day13 + day14 + day15 + day16 + day17 + day18 + day19 + day20 + day21 + day22 + day23 + day24 + day25 + day26 + day27 + day28 + day29 + day30, data=covid)
-
-#model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + pre7 + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + post7, data=covid)
-
-#model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + day8 + day9 + day10 + day11 + day12 + day13 + day14, data=covid)
-
-summary(model)
 ```
 
 
 ```{r}
-effects = c(-2.76E-03, 6.16E-03, 6.19E-03, 1.39E-03, 4.23E-04, 6.24E-04, -9.78E-03, -8.99E-03, -6.35E-03, -1.56E-03, -1.01E-02, -6.18E-03, -1.59E-02, -3.74E-03, -1.26E-02, -8.79E-03, -8.37E-03, -5.30E-03, -1.09E-02, -1.50E-02, -4.38E-03, -1.02E-02)
-days = c(-7:14)
+model <- lm(vaderPol ~ covidCases + stayathome_startday.14 + stayathome_startday.13 + stayathome_startday.12 + stayathome_startday.11 + stayathome_startday.10 + stayathome_startday.9 + stayathome_startday.8 + stayathome_startday.7 + stayathome_startday.6 + stayathome_startday.5 + stayathome_startday.4 + stayathome_startday.3 + stayathome_startday.2 + stayathome_startday.1 + stayathome_startday0 + stayathome_startday1 + stayathome_startday2 + stayathome_startday3 + stayathome_startday4 + stayathome_startday5 + stayathome_startday6 + stayathome_startday7 + stayathome_startday8 + stayathome_startday9 + stayathome_startday10 + stayathome_startday11 + stayathome_startday12 + stayathome_startday13 + stayathome_startday14, data=covid)
 
-plot(days, effects, main='Effect of COVID-19 Stay-at-Home Orders on Happiness', xlab='Days Since Stay-at-Home Order Enforcement', ylab='Estimated Effect', type='o')
-abline(0, 0)
-text(days, effects, labels=effects, cex=0.7, pos=c(1, 1, 4, 3, 1, 3, 1, 1, 3, 3, 1, 3, 2, 3, 1, 1, 3, 3, 2, 1, 3, 1))
+m1 = summary(model)
+m1$coefficients[,1]/2*100
 ```
 
 
 
 ```{r}
-covid2 <- read.csv("analysis2.csv")
-original <- covid2
+model2 <- lm(pol ~ covidCases + stayathome_startday.14 + stayathome_startday.13 + stayathome_startday.12 + stayathome_startday.11 + stayathome_startday.10 + stayathome_startday.9 + stayathome_startday.8 + stayathome_startday.7 + stayathome_startday.6 + stayathome_startday.5 + stayathome_startday.4 + stayathome_startday.3 + stayathome_startday.2 + stayathome_startday.1 + stayathome_startday0 + stayathome_startday1 + stayathome_startday2 + stayathome_startday3 + stayathome_startday4 + stayathome_startday5 + stayathome_startday6 + stayathome_startday7 + stayathome_startday8 + stayathome_startday9 + stayathome_startday10 + stayathome_startday11 + stayathome_startday12 + stayathome_startday13 + stayathome_startday14, data=covid)
 
 
-model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + afterPolicy, data=covid2)
-
-#model <- lm(vaderPol ~ covidCases + employment + outside + creditcardSpend + day.13 + day.12 + day.11 + day.10 + day.9 + day.8 + day.7 + day.6 + day.5 + day.4 + day.3 + day.2 + day.1 + day0 + day1 + day2 + day3 + day4 + day5 + day6 + day7 + day8 + day9 + day10 + day11 + day12 + day13 + day14, data=covid)
-
-summary(model)
+m2 = summary(model2)
+m2$coefficients[,1]/2*100
 ```
+
+
+
+```{r}
+effects = c(model$coefficients[3:31])
+seDown1 = effects - c(m1$coefficients[,2][3:31])
+seUp1 = effects + c(m1$coefficients[,2][3:31])
+effectsName = sprintf(100*effects/2, fmt="%1.2f%%")
+
+effects2 = c(model2$coefficients[3:31])
+seDown2 = effects2 - c(m2$coefficients[,2][3:31])
+seUp2 = effects2 + c(m2$coefficients[,2][3:31])
+effects2Name = sprintf(100*effects2/2, fmt="%1.2f%%")
+
+days = c(-14:14)#c(-14:14)
+
+plot(days, effects, main='Effect of COVID-19 Stay-at-Home Orders on Happiness (VADER)', xlab='Days Since Stay-at-Home Order Enforcement', ylab='Estimated Effect', type='o', ylim=c(-.015,.035))
+abline(0, 0, lty=1)
+abline(v=0, lty=2)
+arrows(days, seUp1, days, seDown1, code=3, length=0.05, angle=90, col='red')
+text(days, effects, labels=effectsName, cex=0.7, pos=c(1, 1, 3, 1, 3, 1, 3, 1, 1, 3, 1, 3, 3, 1, 1, 3, 3, 1, 3, 1, 3, 1, 1,3,3,1,1,3,1))
+
+plot(days, effects2, main='Effect of COVID-19 Stay-at-Home Orders on Happiness (TextBlob)', xlab='Days Since Stay-at-Home Order Enforcement', ylab='Estimated Effect', type='o', ylim=c(-.015,.035))
+abline(0, 0, lty=1)
+abline(v=0, lty=2)
+arrows(days, seUp2, days, seDown2, code=3, length=0.05, angle=90, col='red')
+text(days, effects2, labels=effects2Name, cex=0.7, pos=c(3, 1, 1, 3, 1, 3, 1, 3, 3, 1, 1, 3, 1, 1, 1, 3, 1, 3, 1, 3, 3, 1, 1, 3, 1, 3, 3, 1,3))
+```
+
+
+
+```{r}
+covid$vaderPol = (covid$vaderPol+1)/2*100
+covid$pol = (covid$pol+1)/2*100
+
+model3 <- lm(vaderPol ~ employment + outside, data=covid)
+
+summary(model3)
+
+
+model4 <- lm(pol ~ employment + outside, data=covid)
+
+summary(model4)
+```
+
